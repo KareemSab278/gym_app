@@ -1,0 +1,61 @@
+Base URL - http://localhost:8000
+
+
+Endpoints
+Users
+Create a New User
+
+POST /users
+Body: { "name": "", "email": "", "telephone": "", "dob": "", "sex": "" }
+Response: 201 Created with user details.
+Get All Users
+
+GET /users
+Response: 200 OK with array of user objects.
+Update User
+
+PUT /users/:id
+Body: { "name": "", "email": "", "telephone": "", "dob": "", "sex": "" }
+Response: 200 OK with updated user details.
+Delete User
+
+DELETE /users/:id
+Response: 200 OK with confirmation message.
+Usage
+Record Usage of Equipment
+
+POST /usage
+Body: { "userId": "", "equipmentId": "", "hoursUsed": "" }
+Response: 201 Created with usage details.
+Get Usage Records by User
+
+GET /usage/:userId
+Response: 200 OK with array of usage records.
+Update Usage Hours
+
+PUT /usage/:id
+Body: { "hoursUsed": "" }
+Response: 200 OK with updated usage details.
+Delete Usage Record
+
+DELETE /usage/:id
+Response: 200 OK with confirmation message.
+Equipment
+Get All Equipment
+
+GET /equipment
+Response: 200 OK with array of equipment objects.
+Create New Equipment
+
+POST /equipment
+Body: { "name": "", "type": "", "image": "" }
+Response: 201 Created with equipment details.
+Update Equipment
+
+PUT /equipment/:id
+Body: { "name": "", "type": "", "image": "" }
+Response: 200 OK with updated equipment details.
+Delete Equipment
+
+DELETE /equipment/:id
+Response: 200 OK with confirmation message.
