@@ -15,10 +15,10 @@ app.use(express.json());
 
 // Database configurations
 const db = mysql.createConnection({
-    host: 'sql203.infinityfree.com',      // Replace with InfinityFree database host
-    user: 'if0_37653611',                 // Replace with InfinityFree database user
-    password: 'Assbook27',     // Replace with your vPanel password
-    database: 'if0_37653611_gym_db'       // Replace with InfinityFree database name
+    host: 'testgym.mysql.database.azure.com', 
+    user: 'kareem', 
+    password: 'Assbucket@27',
+    database: 'gym_db'
 });
 
 // Database connection
