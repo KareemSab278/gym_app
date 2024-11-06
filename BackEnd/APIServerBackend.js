@@ -99,33 +99,7 @@ app.post('/equipment', upload.single('image'), (req, res) => {
     });
 });
 
-// Create a new user
-app.post('/users', async (req, res) => {
-    const { name, email, telephone, dob, sex, password } = req.body;
-
-    if (!name || !email || !telephone || !dob || !sex || !password) {
-        return res.status(400).json({ message: 'All fields are required.' });
-    }
-
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        db.query(
-            "INSERT INTO gym_users (name, email, telephone, dob, sex, password) VALUES (?, ?, ?, ?, ?, ?)",
-            [name, email, telephone, dob, sex, hashedPassword],
-            (err, results) => {
-                if (err) {
-                    console.error('Detailed database error:', err); // Log the detailed error
-                    return res.status(500).json({ message: 'Database query error', error: err });
-                }
-                const userId = results.insertId;
-                res.status(201).json({ message: 'User created successfully', userId });
-            }
-        );
-    } catch (error) {
-        console.error('Error hashing password:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
+/auth/signup
 
 // Sign up a new user
 app.post('/auth/signup', async (req, res) => {
