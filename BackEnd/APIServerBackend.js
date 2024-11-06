@@ -99,7 +99,70 @@ app.post('/equipment', upload.single('image'), (req, res) => {
     });
 });
 
-/auth/signup
+app.post('/users', async (req, res) => {
+    const { name, email, telephone, dob, sex, password } = req.body;
+
+    console.log('Attempting to create new user with data:', { name, email, telephone, dob, sex });
+
+    // Check each field and log status
+    if (!name) {
+        console.error('Validation failed: Name is required');
+        return res.status(400).json({ message: 'Name is required.' });
+    }
+    if (!email) {
+        console.error('Validation failed: Email is required');
+        return res.status(400).json({ message: 'Email is required.' });
+    }
+    if (!telephone) {
+        console.error('Validation failed: Telephone is required');
+        return res.status(400).json({ message: 'Telephone is required.' });
+    }
+    if (!dob) {
+        console.error('Validation failed: Date of Birth is required');
+        return res.status(400).json({ message: 'Date of Birth is required.' });
+    }
+    if (!sex || (sex !== 'Male' && sex !== 'Female')) {
+        console.error('Validation failed: Sex must be "Male" or "Female"');
+        return res.status(400).json({ message: 'Sex must be "Male" or "Female".' });
+    }
+    if (!password) {
+        console.error('Validation failed: Password is required');
+        return res.status(400).json({ message: 'Password is required.' });
+    }
+
+    try {
+        // Hash the password and log the result
+        const hashedPassword = await bcrypt.hash(password, 10);
+        console.log('Password hashed successfully:', hashedPassword);
+
+        // Attempt the database insertion
+        db.query(
+            "INSERT INTO gym_users (name, email, telephone, dob, sex, password) VALUES (?, ?, ?, ?, ?, ?)",
+            [name, email, telephone, dob, sex, hashedPassword],
+            (err, results) => {
+                if (err) {
+                    console.error('Database error during user insertion:', err.code, err.message);
+                    // Check for specific errors (like duplicate email)
+                    if (err.code === 'ER_DUP_ENTRY') {
+                        console.error('Unique constraint violation: Email must be unique');
+                        return res.status(400).json({ message: 'Email already in use.' });
+                    }
+                    return res.status(500).json({ message: 'Database query error', error: err });
+                }
+
+                // Log successful insertion with ID
+                const userId = results.insertId;
+                console.log(`User created successfully with ID: ${userId}`);
+                res.status(201).json({ message: 'User created successfully', userId });
+            }
+        );
+    } catch (error) {
+        // Log error in hashing or other unexpected errors
+        console.error('Error during signup process:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+});
+
 
 // Sign up a new user
 app.post('/auth/signup', async (req, res) => {
