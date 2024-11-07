@@ -1,6 +1,6 @@
 const http = require("http");
-const host = "0.0.0.0";
-const port = "8000";
+const port = process.env.PORT || 3000;
+const host = process.env.HOST || '0.0.0.0';
 const express = require('express');
 const mysql = require('mysql'); 
 const bcrypt = require('bcrypt');
@@ -13,12 +13,16 @@ const app = express();
 app.use(express.json()); 
 //app.use(cors()); // Enable CORS
 
-// Database configurations
+// Database configurations for Azure
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'gym_db'
+    host: process.env.DB_HOST || 'testgym.mysql.database.azure.com', // Azure host
+    user: process.env.DB_USER || 'kareem', // Azure user
+    password: process.env.DB_PASSWORD || 'Assbucket@27', // Azure password
+    database: process.env.DB_NAME || 'gym_db', // Database name
+    port: process.env.DB_PORT || 3306, // Azure default MySQL port
+    ssl: {
+        rejectUnauthorized: true // Optional but may be needed if Azure requires SSL connections
+    }
 });
 
 // Database connection
@@ -27,7 +31,7 @@ db.connect((err) => {
         console.error('Error connecting to MySQL: ' + err.stack);
         return;
     }
-    console.log('Connected to MySQL as ID ' + db.threadId);
+    console.log('Connected to Azure MySQL as ID ' + db.threadId);
 });
 
 // Start server
@@ -153,57 +157,6 @@ app.post('/usage', (req, res) => {
     });
 });
 
-
-// Deduct funds from a user
-app.put('/users/:id/deduct-funds', (req, res) => {
-    console.log('PUT /users/:id/deduct-funds called with params:', req.params);
-    console.log('Request body:', req.body);
-
-    const userId = req.params.id;
-    const { amount } = req.body;
-
-    if (!amount) {
-        console.error('Amount is missing in the request body');
-        return res.status(400).json({ message: 'Amount is required' });
-    }
-
-    db.query("UPDATE gym_users SET funds = funds - ? WHERE id = ?", [amount, userId], (err, results) => {
-        if (err) {
-            console.error('Database query error:', err);
-            return res.status(500).json({ message: 'Database query error' });
-        }
-        console.log('Funds deducted successfully for user ID:', userId);
-        res.json({ message: 'Funds deducted successfully', results });
-    });
-});
-
-
-
-// _______________________________ DELETE ENDPOINTS _______________________________
-
-// Delete a piece of equipment
-app.delete('/equipment/:id', (req, res) => {
-    const id = req.params.id;
-    db.query("DELETE FROM equipment WHERE id = ?", [id], (err, results) => {
-        if (err) {
-            console.error('Error deleting equipment:', err);
-            return res.status(500).json({ message: 'Database query error' });
-        }
-        res.json({ message: 'Equipment deleted successfully', results });
-    });
-});
-
-// Delete a user
-app.delete('/users/:id', (req, res) => {
-    db.query("DELETE FROM gym_users WHERE id = ?", [req.params.id], (err, results) => {
-        if (err) {
-            console.error('Error deleting user:', err);
-            return res.status(500).json({ message: 'Database query error', error: err });
-        }
-        res.json({ message: 'User deleted successfully', results });
-    });
-});
-
 // _______________________________ PATCH ENDPOINT _______________________________
 
 app.patch('/use-equipment', (req, res) => {
@@ -242,10 +195,6 @@ app.patch('/use-equipment', (req, res) => {
     }
 });
 
-
-
-
-
 // _______________________________ AUTHENTICATION _______________________________
 
 // Sign in a user
@@ -267,15 +216,16 @@ app.post('/auth/signin', async (req, res) => {
         }
 
         const user = results[0];
-        console.log('Retrieved password hash from DB:', user.password);
 
-        const passwordMatch = await bcrypt.compare(password, user.password);
-
-        console.log('Password comparison result:', passwordMatch);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+        try {
+            const passwordMatch = await bcrypt.compare(password, user.password);
+            if (!passwordMatch) {
+                return res.status(401).json({ message: 'Invalid credentials' });
+            }
+            res.json({ message: 'Sign in successful', user });
+        } catch (error) {
+            console.error('Error comparing passwords:', error);
+            return res.status(500).json({ message: 'Internal server error' });
         }
-
-        res.json({ message: 'Sign in successful', user });
     });
 });
