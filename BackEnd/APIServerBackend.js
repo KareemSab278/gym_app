@@ -15,15 +15,16 @@ app.use(express.json());
 
 // Database configurations for Azure
 const db = mysql.createConnection({
-    host: process.env.DB_HOST || 'testgym.mysql.database.azure.com', // Azure host
-    user: process.env.DB_USER || 'kareem', // Azure user
-    password: process.env.DB_PASSWORD || 'Assbucket@27', // Azure password
-    database: process.env.DB_NAME || 'gym_db', // Database name
-    port: process.env.DB_PORT || 3306, // Azure default MySQL port
+    host: 'testgym.mysql.database.azure.com',
+    user: 'kareem',
+    password: 'Assbucket@27',
+    database: 'gym_db',
+    port: 3306,
     ssl: {
-        rejectUnauthorized: true // Optional but may be needed if Azure requires SSL connections
+        rejectUnauthorized: true
     }
 });
+
 
 // Database connection
 db.connect((err) => {
