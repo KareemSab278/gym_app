@@ -100,7 +100,7 @@ app.post('/equipment', upload.single('image'), (req, res) => {
 });
 
 // Create a new user
-app.post('/users', async (req, res) => {
+app.post('/auth/signup', async (req, res) => {
     const { name, email, telephone, dob, sex, password } = req.body;
 
     if (!name || !email || !telephone || !dob || !sex || !password) {
@@ -127,7 +127,7 @@ app.post('/users', async (req, res) => {
 });
 
 // Sign up a new user
-
+/*
 app.post('/auth/signup', async (req, res) => {
     const { name, email, telephone, dob, sex, password } = req.body;
 
@@ -158,7 +158,7 @@ app.post('/auth/signup', async (req, res) => {
         console.error('Error hashing password:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-});
+});*/
 
 
 
