@@ -235,7 +235,10 @@ app.post('/auth/signin', async (req, res) => {
                 return res.status(401).json({ message: 'Invalid credentials' });
             }
 
-            const { password, ...safeUser } = user; // Exclude password
+            // Avoid conflict by renaming `password` in the destructured object
+            const { password: hashedPassword, ...safeUser } = user;
+
+            console.log('Sign-In Successful for User:', safeUser);
             res.json({ message: 'Sign in successful', user: safeUser });
         } catch (error) {
             console.error('Password Comparison Error:', error);
