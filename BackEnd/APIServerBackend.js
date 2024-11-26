@@ -206,27 +206,40 @@ app.post('/auth/signin', async (req, res) => {
         return res.status(400).json({ message: 'Email and password are required.' });
     }
 
+    console.log('Sign-In Request Received:', { email, password });
+
     db.query("SELECT * FROM gym_users WHERE email = ?", [email], async (err, results) => {
         if (err) {
-            console.error('Error querying user by email:', err);
-            return res.status(500).json({ message: 'Database query error' });
+            console.error('Database Query Error:', err);
+            return res.status(500).json({ message: 'Database query error', error: err.message });
         }
 
+        console.log('Query Results:', results);
+
         if (results.length === 0) {
+            console.log('User Not Found:', email);
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const user = results[0];
+        console.log('User Found:', user);
 
         try {
+            console.log('Plain Password:', password);
+            console.log('Stored Hashed Password:', user.password);
+
             const passwordMatch = await bcrypt.compare(password, user.password);
+            console.log('Password Match:', passwordMatch);
+
             if (!passwordMatch) {
                 return res.status(401).json({ message: 'Invalid credentials' });
             }
-            res.json({ message: 'Sign in successful', user });
+
+            const { password, ...safeUser } = user; // Exclude password
+            res.json({ message: 'Sign in successful', user: safeUser });
         } catch (error) {
-            console.error('Error comparing passwords:', error);
-            return res.status(500).json({ message: 'Internal server error' });
+            console.error('Password Comparison Error:', error);
+            return res.status(500).json({ message: 'Internal server error', error: error.message });
         }
     });
 });
