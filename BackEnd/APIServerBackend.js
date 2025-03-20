@@ -17,7 +17,7 @@ app.use(express.json());
 const db = mysql.createConnection({
     host: 'testgym.mysql.database.azure.com',
     user: 'kareem',
-    password: 'Assbucket@27',
+    password: 'Assbook@27',
     database: 'gym_db',
     port: 3306,
     ssl: {
